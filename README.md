@@ -1,9 +1,7 @@
----
-
 # 📖 README – Manual Setup Laravel (Backend) + Next.js (Frontend)
 
 ## 🔧 1. Prasyarat
-
+---
 Pastikan software berikut sudah terinstall di komputer kamu:
 
 * [PHP 8.1+](https://www.php.net/downloads) (disarankan 8.2)
