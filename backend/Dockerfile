@@ -1,36 +1,24 @@
-FROM php:8.2-fpm
+FROM php:8.2-fpm-bullseye
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
     libpng-dev \
-    libjpeg-dev \
+    libjpeg62-turbo-dev \
     libfreetype6-dev \
     zip \
     unzip \
     git \
     curl \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo_mysql gd
 
-# Install Composer
+# Copy Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copy composer files 
-COPY composer.json composer.lock ./
-
-# Install dependencies
-RUN composer install --no-dev --optimize-autoloader
-
-# Copy project Laravel
 COPY . .
 
-# Copy env file ke container
-COPY .env.example .env
-
-# Generate key, migrate, dan seeder
-RUN php artisan key:generate \
-    && php artisan storage:link \
-    && php artisan migrate --seed --force
+RUN composer install --no-dev --optimize-autoloader
 
 CMD ["php-fpm"]

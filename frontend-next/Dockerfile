@@ -1,11 +1,11 @@
 # Build stage
-FROM node:18-alpine as builder
+FROM node:18-alpine AS builder
 WORKDIR /app
 
 # Copy package.json dan package-lock.json
 COPY package*.json ./
 
-# Install dependencies 
+# Install dependencies
 RUN npm install --platform=linux --force
 
 # Copy semua source code

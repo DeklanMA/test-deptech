@@ -1,109 +1,42 @@
 ---
 
-# 🚀 Laravel + Next.js + Docker
+# 📖 README – Manual Setup Laravel + Next.js
 
-Proyek ini adalah **Fullstack Aplikasi** berbasis **Laravel (Backend API)** dan **Next.js (Frontend)** dengan integrasi **Docker Compose** untuk mempermudah setup development.
+## 🔧 1. Prasyarat
 
----
+Pastikan sudah install di komputer:
 
-## 📂 Struktur Folder
-
-```
-project-root/
-│── backend/            # Laravel backend (API)
-│   ├── app/
-│   ├── database/
-│   ├── routes/
-│   ├── Dockerfile
-│   └── ...
-│
-│── frontend/           # Next.js frontend
-│   ├── src/
-│   ├── public/
-│   ├── Dockerfile
-│   └── ...
-│
-│── nginx/              # Konfigurasi Nginx reverse proxy
-│   └── default.conf
-│
-│── docker-compose.yml
-│── README.md
-```
+* [PHP 8.2+](https://www.php.net/downloads)
+* [Composer](https://getcomposer.org/download/)
+* [Node.js 18+](https://nodejs.org/en/download/)
+* [MySQL 8](https://dev.mysql.com/downloads/mysql/)
+* [Git](https://git-scm.com/downloads)
 
 ---
 
-## ⚡ Setup & Instalasi
+## ⚙️ 2. Setup Backend (Laravel)
 
-### 1️⃣ Clone Repository
+Masuk ke folder backend:
 
-```bash
-git clone https://github.com/DeklanMA/test-deptech.git
-cd test-deptech
+```sh
+cd backend
 ```
 
-### 2️⃣ Build & Run Docker
+### 2.1 Install dependency
 
-```bash
-docker compose up -d --build
+```sh
+composer install
 ```
 
-### 3️⃣ Migrasi & Seeder (otomatis di Dockerfile)
+### 2.2 Copy konfigurasi environment
 
-Saat pertama kali build, Laravel akan otomatis menjalankan:
-
-```bash
-php artisan migrate --seed
+```sh
+cp .env.example .env
 ```
 
-Jadi database sudah langsung siap digunakan dengan user default.
+### 2.3 Konfigurasi `.env`
 
-### 4️⃣ Akses Aplikasi
-
-* **Frontend (Next.js)** → [http://localhost](http://localhost)
-* **Backend API (Laravel)** → [http://localhost:8000](http://localhost:8000)
-* **PhpMyAdmin (opsional jika ditambahkan)** → [http://localhost:8080](http://localhost:8080)
-
----
-
-## 🔑 Login Info (Seeder User)
-
-Seeder `UserSeeder.php` sudah menambahkan beberapa user default:
-
-| Nama          | Email                 | Password      |
-| ------------- | --------------------- | ------------- |
-| Admin User    | `admin@example.com`   | `password`    |
-| Jane Doe      | `jane@example.com`    | `password123` |
-| Michael Smith | `michael@example.com` | `secret123`   |
-
-👉 Gunakan salah satu credential di atas untuk login ke aplikasi.
-
----
-
-## 🛠️ Perintah Berguna
-
-### Reset Database (drop + migrate + seed ulang)
-
-```bash
-docker compose exec backend php artisan migrate:fresh --seed
-```
-
-### Jalankan Artisan Command
-
-```bash
-docker compose exec backend php artisan route:list
-```
-
-### Masuk ke Tinker
-
-```bash
-docker compose exec backend php artisan tinker
-```
-
----
-
-## ⚙️ Environment Variables
-
-### Backend (`backend/.env`)
+Ubah bagian database sesuai lokal MySQL:
 
 ```env
 APP_NAME=Laravel
@@ -113,26 +46,115 @@ APP_DEBUG=true
 APP_URL=http://localhost:8000
 
 DB_CONNECTION=mysql
-DB_HOST=db
+DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=laravel
-DB_USERNAME=laravel
-DB_PASSWORD=secret
+DB_USERNAME=root
+DB_PASSWORD=
 ```
 
-### Frontend (`frontend/.env.local`)
+Tambahkan juga frontend URL (supaya CORS & Sanctum jalan):
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
+FRONTEND_URL=http://localhost:3000
 ```
 
+### 2.4 Generate APP_KEY
+
+```sh
+php artisan key:generate
+```
+
+### 2.5 Migrasi database + seeding
+
+```sh
+php artisan migrate --seed
+```
+
+Seeder akan otomatis membuat akun default.
+
+📌 **Akun default login:**
+
+```
+Email   : admin@example.com
+Password: password
+```
+
+### 2.6 Jalankan backend
+
+```sh
+php artisan serve --host=127.0.0.1 --port=8000
+```
+
+Backend Laravel sekarang jalan di:
+👉 [http://localhost:8000](http://localhost:8000)
+
 ---
 
-## 📌 Catatan
+## ⚛️ 3. Setup Frontend (Next.js)
 
-* Laravel berjalan di `php-fpm` + Nginx, dengan database MySQL.
-* Next.js berjalan di container terpisah (`frontend`).
-* Semua sudah terhubung via `docker-compose`.
-* Pastikan **port 8000 dan 3000 tidak digunakan aplikasi lain**.
+Masuk ke folder frontend:
+
+```sh
+cd frontend-next
+```
+
+### 3.1 Install dependency
+
+```sh
+npm install
+```
+
+### 3.2 Copy environment
+
+```sh
+cp .env.example .env.local
+```
+
+Isi file `.env.local`:
+
+```env
+NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+```
+
+### 3.3 Jalankan frontend
+
+```sh
+npm run dev
+```
+
+Frontend akan jalan di:
+👉 [http://localhost:3000](http://localhost:3000)
 
 ---
+
+## 🔑 4. Login
+
+Setelah kedua service jalan:
+
+1. Buka frontend [http://localhost:3000](http://localhost:3000)
+2. Klik **Login**
+3. Masukkan akun default:
+
+   ```
+   Email   : admin@example.com
+   Password: password
+   ```
+4. Jika berhasil, user akan diarahkan ke dashboard.
+
+---
+
+## 🛠 5. Troubleshooting
+
+* Kalau CORS error → pastikan di `config/cors.php` Laravel sudah:
+
+  ```php
+  'paths' => ['api/*', 'sanctum/csrf-cookie'],
+  'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3000')],
+  'supports_credentials' => true,
+  ```
+* Kalau database error → pastikan service MySQL jalan & kredensial di `.env` sesuai.
+* Jika frontend tidak konek → cek apakah `NEXT_PUBLIC_BACKEND_URL` sesuai dengan URL backend (`http://localhost:8000`).
+
+---
+
