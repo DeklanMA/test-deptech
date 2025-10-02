@@ -31,7 +31,13 @@ Pastikan software berikut sudah terinstall di komputer kamu:
     ```sql
     CREATE DATABASE test_deptech;
     ```
+## ⚙️ 2.1 clone repository
 
+```sh
+git clone https://github.com/DeklanMA/test-deptech.git
+
+cd test-deptech
+```
 ---
 
 ## ⚙️ 3. Setup Backend (Laravel)
