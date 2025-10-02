@@ -1,20 +1,40 @@
 ---
 
-# 📖 README – Manual Setup Laravel + Next.js
+# 📖 README – Manual Setup Laravel (Backend) + Next.js (Frontend)
 
 ## 🔧 1. Prasyarat
 
-Pastikan sudah install di komputer:
+Pastikan software berikut sudah terinstall di komputer kamu:
 
-* [PHP 8.2+](https://www.php.net/downloads)
+* [PHP 8.1+](https://www.php.net/downloads) (disarankan 8.2)
 * [Composer](https://getcomposer.org/download/)
-* [Node.js 18+](https://nodejs.org/en/download/)
 * [MySQL 8](https://dev.mysql.com/downloads/mysql/)
+* [Node.js 18+](https://nodejs.org/en/download/)
+* [NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 * [Git](https://git-scm.com/downloads)
 
 ---
 
-## ⚙️ 2. Setup Backend (Laravel)
+## 🗄 2. Setup Database MySQL
+
+1. start MySQL:
+    ```sh
+    # Jika di Windows, bisa pakai XAMPP atau Laragon
+    # Jika di Linux, bisa pakai:
+    sudo service mysql start
+    ```
+2. Login ke MySQL:
+    ```sh
+    mysql -u root -p
+    ```
+3. Buat database baru:
+    ```sql
+    CREATE DATABASE test_deptech;
+    ```
+
+---
+
+## ⚙️ 3. Setup Backend (Laravel)
 
 Masuk ke folder backend:
 
@@ -22,21 +42,21 @@ Masuk ke folder backend:
 cd backend
 ```
 
-### 2.1 Install dependency
+### 3.1 Install dependency Laravel
 
 ```sh
 composer install
 ```
 
-### 2.2 Copy konfigurasi environment
+### 3.2 Copy konfigurasi environment
 
 ```sh
 cp .env.example .env
 ```
 
-### 2.3 Konfigurasi `.env`
+### 3.3 Konfigurasi file `.env`
 
-Ubah bagian database sesuai lokal MySQL:
+Edit `.env` sesuai database MySQL yang sudah dibuat:
 
 ```env
 APP_NAME=Laravel
@@ -48,50 +68,46 @@ APP_URL=http://localhost:8000
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=laravel
+DB_DATABASE=test_deptech
 DB_USERNAME=root
 DB_PASSWORD=
-```
 
-Tambahkan juga frontend URL (supaya CORS & Sanctum jalan):
-
-```env
 FRONTEND_URL=http://localhost:3000
 ```
 
-### 2.4 Generate APP_KEY
+### 3.4 Generate APP_KEY
 
 ```sh
 php artisan key:generate
 ```
 
-### 2.5 Migrasi database + seeding
+### 3.5 Migrasi + seeding database
 
 ```sh
-php artisan migrate --seed
+php artisan migrate:fresh --seed
 ```
 
-Seeder akan otomatis membuat akun default.
+Seeder otomatis akan membuat akun admin default.
 
-📌 **Akun default login:**
+📌 **Akun login default:**
 
 ```
-Email   : admin@example.com
-Password: password
+Email    : admin@example.com
+Password : password
 ```
 
-### 2.6 Jalankan backend
+### 3.6 Jalankan server backend
 
 ```sh
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-Backend Laravel sekarang jalan di:
+Backend Laravel akan jalan di:
 👉 [http://localhost:8000](http://localhost:8000)
 
 ---
 
-## ⚛️ 3. Setup Frontend (Next.js)
+## ⚛️ 4. Setup Frontend (Next.js)
 
 Masuk ke folder frontend:
 
@@ -99,25 +115,25 @@ Masuk ke folder frontend:
 cd frontend-next
 ```
 
-### 3.1 Install dependency
+### 4.1 Install dependency
 
 ```sh
 npm install
 ```
 
-### 3.2 Copy environment
+### 4.2 Copy environment
 
 ```sh
 cp .env.example .env.local
 ```
 
-Isi file `.env.local`:
+Isi `.env.local` seperti ini:
 
 ```env
 NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
 ```
 
-### 3.3 Jalankan frontend
+### 4.3 Jalankan frontend
 
 ```sh
 npm run dev
@@ -128,33 +144,44 @@ Frontend akan jalan di:
 
 ---
 
-## 🔑 4. Login
+## 🔑 5. Login ke Aplikasi
 
-Setelah kedua service jalan:
-
-1. Buka frontend [http://localhost:3000](http://localhost:3000)
-2. Klik **Login**
+1. Buka browser → [http://localhost:3000](http://localhost:3000)
+2. Klik menu **Login**
 3. Masukkan akun default:
 
    ```
-   Email   : admin@example.com
-   Password: password
+   Email    : admin@example.com
+   Password : password
    ```
-4. Jika berhasil, user akan diarahkan ke dashboard.
+4. Jika berhasil, user diarahkan ke **Dashboard**.
 
 ---
 
-## 🛠 5. Troubleshooting
+## 🛠 6. Troubleshooting
 
-* Kalau CORS error → pastikan di `config/cors.php` Laravel sudah:
+* **CORS Error**
+  Pastikan `config/cors.php` di Laravel sudah seperti ini:
 
   ```php
   'paths' => ['api/*', 'sanctum/csrf-cookie'],
   'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3000')],
   'supports_credentials' => true,
   ```
-* Kalau database error → pastikan service MySQL jalan & kredensial di `.env` sesuai.
-* Jika frontend tidak konek → cek apakah `NEXT_PUBLIC_BACKEND_URL` sesuai dengan URL backend (`http://localhost:8000`).
 
----
+* **Database error**
+  Cek apakah service MySQL jalan:
+
+  ```sh
+  mysql -u laravel -p
+  ```
+
+  Pastikan bisa login dan database `test_deptech` ada.
+
+* **Frontend tidak bisa konek ke backend**
+  Periksa apakah `.env.local` sudah sesuai:
+
+  ```env
+  NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+  ```
 
