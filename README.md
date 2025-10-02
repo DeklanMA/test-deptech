@@ -37,8 +37,8 @@ project-root/
 ### 1️⃣ Clone Repository
 
 ```bash
-git clone https://github.com/username/project-name.git
-cd project-name
+git clone https://github.com/DeklanMA/test-deptech.git
+cd test-deptech
 ```
 
 ### 2️⃣ Build & Run Docker
