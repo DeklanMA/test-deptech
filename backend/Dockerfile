@@ -11,17 +11,26 @@ RUN apt-get update && apt-get install -y \
     curl \
     && docker-php-ext-install pdo_mysql gd
 
-# Composer
+# Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
+# Copy composer files 
+COPY composer.json composer.lock ./
+
+# Install dependencies
+RUN composer install --no-dev --optimize-autoloader
+
+# Copy project Laravel
 COPY . .
 
-# Install dependencies + optimize
-RUN composer install --no-dev --optimize-autoloader \
-    && php artisan key:generate \
-    && php artisan storage:link
+# Copy env file ke container
+COPY .env.example .env
 
-# Saat container jalan -> migrate & seed
-CMD php artisan migrate --force && php artisan db:seed --force && php-fpm
+# Generate key, migrate, dan seeder
+RUN php artisan key:generate \
+    && php artisan storage:link \
+    && php artisan migrate --seed --force
+
+CMD ["php-fpm"]
